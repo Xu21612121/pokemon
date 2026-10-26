@@ -1,12 +1,13 @@
 function mountSwipe() {
   const top = document.querySelector('.swipe-top');
   if (!top) return;
+  const scale = .7;
   let gesture = null, busy = false;
   function finish(dx, dy) {
     if (busy) return;
     busy = true;
     top.style.transition = 'transform 240ms ease-out, opacity 240ms';
-    top.style.transform = `translate(${dx * 5}px, ${dy * 5}px) rotate(${dx / 12}deg)`;
+    top.style.transform = `translate(${dx * 5 / scale}px, ${dy * 5 / scale}px) rotate(${dx / 12}deg)`;
     top.style.opacity = '0';
     const current = opening[0];
     setTimeout(() => {
@@ -31,7 +32,7 @@ function mountSwipe() {
   top.addEventListener('pointermove', event => {
     if (!gesture || gesture.id !== event.pointerId || busy) return;
     const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
-    top.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 18}deg)`;
+    top.style.transform = `translate(${dx / scale}px, ${dy / scale}px) rotate(${dx / 18}deg)`;
   });
   top.addEventListener('pointerup', event => {
     if (!gesture || gesture.id !== event.pointerId || busy) return;

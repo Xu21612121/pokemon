@@ -1,5 +1,5 @@
-<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>口袋藏馆 · 拆卡日记</title><style>600;800&display=swap');
-.swipe-stack{position:relative;isolation:isolate;margin:30px auto 22px;max-width:340px}.swipe-top{position:relative;z-index:2;touch-action:none;user-select:none;cursor:grab;box-shadow:0 20px 40px #0007;will-change:transform}.swipe-top:active{cursor:grabbing}.swipe-top:focus-visible{outline:2px solid #d8b86b;outline-offset:4px}.swipe-under{position:absolute;inset:0;transform:translateY(8px) rotate(2deg);pointer-events:none}.swipe-empty{position:absolute;inset:0;display:grid;place-content:center;border:1px dashed #d8b86b66;border-radius:16px;color:#d8b86b}.reveal{overflow:clip;padding:0 12px 12px;max-width:460px}.reveal .cardart{height:clamp(190px,34vh,300px)}
+<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>口袋藏馆 · 拆卡日记</title><style>
+.swipe-stack{position:relative;isolation:isolate;margin:30px auto 22px;max-width:376px;zoom:.7}.swipe-top{position:relative;z-index:2;touch-action:none;user-select:none;cursor:grab;box-shadow:0 20px 40px #0007;will-change:transform}.swipe-top:active{cursor:grabbing}.swipe-top:focus-visible{outline:2px solid #d8b86b;outline-offset:4px}.swipe-under{position:absolute;inset:0;transform:translateY(8px) rotate(2deg);pointer-events:none}.swipe-empty{position:absolute;inset:0;display:grid;place-content:center;border:1px dashed #d8b86b66;border-radius:16px;color:#d8b86b}.reveal{overflow:clip;padding:0 12px 12px;max-width:460px}.reveal .cardart{height:clamp(190px,34vh,300px)}
 .language-switch{display:inline-flex;padding:4px;gap:4px;border:1px solid #ffffff24;border-radius:12px;background:#16241e}.language-switch button{padding:8px 18px;background:transparent;border:0;border-radius:8px;color:#a9b9ad;font-size:14px}.language-switch button.selected{background:#d8b86b;color:#17231d;font-weight:800}.language-switch button:focus-visible{outline:2px solid #eee8dc;outline-offset:2px}
 :root{font-family:'Noto Sans SC',sans-serif;color:#eee8dc;background:#121d1b}*{box-sizing:border-box}body{margin:0}button,select{font:inherit;cursor:pointer}button{border:1px solid #ffffff24;background:#283c34;color:#eee8dc;padding:12px 20px;border-radius:10px}button:hover{background:#466349}button:disabled{opacity:.4;cursor:default}.gold{background:#d8b86b;color:#17231d;font-weight:800}header{padding:24px 6%;border-bottom:1px solid #ffffff19;display:flex;justify-content:space-between;align-items:center}header small{color:#91a695}main{max-width:1200px;margin:auto;padding:40px 24px}h1{font-size:48px;letter-spacing:-2px;margin:12px 0}h2{font-size:27px}p{color:#a9b9ad;line-height:1.8}.hero{padding:35px;background:radial-gradient(ellipse at right,#415e3b,#1d3028);border:1px solid #ffffff15;border-radius:20px;margin-bottom:28px}.eyebrow{color:#d8b86b;letter-spacing:4px;font-size:12px}nav{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}nav .active{background:#d8b86b;color:#17231d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}.panel{background:#1c2b25;border:1px solid #ffffff15;border-radius:16px;padding:22px}.pack{height:220px;width:150px;margin:15px auto 25px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#dfb865,#775c38);color:white;box-shadow:10px 15px 30px #0005;transform:rotate(-5deg);border:6px double #ffffff55;border-radius:3px}.pack b{font-size:50px}.pack.blue{background:linear-gradient(135deg,#6399b1,#344477)}.pack.pink{background:linear-gradient(135deg,#d99ca8,#69446d)}.price{color:#e5c77f;font-size:22px;font-weight:800}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.cardart{height:170px;border-radius:10px;background:radial-gradient(circle,#c3d6a0,#415849);display:grid;place-items:center;font-size:72px;margin-bottom:18px}.rare{background:linear-gradient(125deg,#a8cde2,#c8a5d5,#eee0a1,#92c0ba)}.tag{font-size:11px;letter-spacing:1px;color:#d8b86b}.muted{font-size:12px;color:#91a695}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.actions button{padding:8px;font-size:12px}.notice{padding:14px;border-left:3px solid #d8b86b;background:#28372a;margin-bottom:20px}footer{font-size:12px;color:#91a695;padding:30px;text-align:center}.start{text-align:center;max-width:750px;margin:10vh auto}.start h1{font-size:64px}.reveal{text-align:center;max-width:400px;margin:auto}.reveal .cardart{height:300px;font-size:110px}input{max-width:100%}@media(max-width:600px){h1{font-size:34px}.start h1{font-size:42px}header{padding:18px}.hero{padding:22px}main{padding:22px 16px}}
 </style><body><div id="app"><p>正在加载口袋藏馆。如果此提示一直存在，请下载完整项目后打开 index.html；文件预览可能不允许运行游戏脚本。</p></div><script>// Some file previews deny storage; allow play while clearly warning about persistence.
@@ -29,12 +29,13 @@ function cardId() {
 </script><script>function mountSwipe() {
   const top = document.querySelector('.swipe-top');
   if (!top) return;
+  const scale = .7;
   let gesture = null, busy = false;
   function finish(dx, dy) {
     if (busy) return;
     busy = true;
     top.style.transition = 'transform 240ms ease-out, opacity 240ms';
-    top.style.transform = `translate(${dx * 5}px, ${dy * 5}px) rotate(${dx / 12}deg)`;
+    top.style.transform = `translate(${dx * 5 / scale}px, ${dy * 5 / scale}px) rotate(${dx / 12}deg)`;
     top.style.opacity = '0';
     const current = opening[0];
     setTimeout(() => {
@@ -59,7 +60,7 @@ function cardId() {
   top.addEventListener('pointermove', event => {
     if (!gesture || gesture.id !== event.pointerId || busy) return;
     const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
-    top.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 18}deg)`;
+    top.style.transform = `translate(${dx / scale}px, ${dy / scale}px) rotate(${dx / 18}deg)`;
   });
   top.addEventListener('pointerup', event => {
     if (!gesture || gesture.id !== event.pointerId || busy) return;
