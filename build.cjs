@@ -7,4 +7,5 @@ const html = read('index.html')
   .replace('<script src="swipe.js"></script>', () => `<script>${read('swipe.js')}</script>`)
   .replace('<script src="app.js"></script>', () => `<script>${read('app.js')}</script>`);
 fs.writeFileSync(path.join(__dirname, '口袋藏馆.html'), html);
+fs.writeFileSync(path.join(__dirname, '口袋藏馆-v0.3.2.html'), html);
 console.log('Created standalone 口袋藏馆.html');

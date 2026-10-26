@@ -1,0 +1,104 @@
+<!doctype html><html lang="zh-CN"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>口袋藏馆 · 拆卡日记</title><style>.swipe-stack{display:grid;position:relative;isolation:isolate;margin:30px auto 22px;max-width:376px;zoom:.7}.swipe-top{grid-area:1 / 1;min-width:0;position:relative;z-index:2;touch-action:none;user-select:none;cursor:grab;box-shadow:0 20px 40px #0007;will-change:transform}.swipe-top:active{cursor:grabbing}.swipe-top:focus-visible{outline:2px solid #d8b86b;outline-offset:4px}.swipe-under{grid-area:1 / 1;min-width:0;position:relative;transform:translateY(8px) rotate(2deg);pointer-events:none}.swipe-empty{grid-area:1 / 1;position:relative;display:grid;place-content:center;border:1px dashed #d8b86b66;border-radius:16px;color:#d8b86b}.reveal{overflow:clip;padding:0 12px 12px;max-width:460px}.reveal .cardart{height:clamp(190px,34vh,300px)}
+.language-switch{display:inline-flex;padding:4px;gap:4px;border:1px solid #ffffff24;border-radius:12px;background:#16241e}.language-switch button{padding:8px 18px;background:transparent;border:0;border-radius:8px;color:#a9b9ad;font-size:14px}.language-switch button.selected{background:#d8b86b;color:#17231d;font-weight:800}.language-switch button:focus-visible{outline:2px solid #eee8dc;outline-offset:2px}
+:root{font-family:'Noto Sans SC',sans-serif;color:#eee8dc;background:#121d1b}*{box-sizing:border-box}body{margin:0}button,select{font:inherit;cursor:pointer}button{border:1px solid #ffffff24;background:#283c34;color:#eee8dc;padding:12px 20px;border-radius:10px}button:hover{background:#466349}button:disabled{opacity:.4;cursor:default}.gold{background:#d8b86b;color:#17231d;font-weight:800}header{padding:24px 6%;border-bottom:1px solid #ffffff19;display:flex;justify-content:space-between;align-items:center}header small{color:#91a695}main{max-width:1200px;margin:auto;padding:40px 24px}h1{font-size:48px;letter-spacing:-2px;margin:12px 0}h2{font-size:27px}p{color:#a9b9ad;line-height:1.8}.hero{padding:35px;background:radial-gradient(ellipse at right,#415e3b,#1d3028);border:1px solid #ffffff15;border-radius:20px;margin-bottom:28px}.eyebrow{color:#d8b86b;letter-spacing:4px;font-size:12px}nav{display:flex;gap:10px;flex-wrap:wrap;margin:25px 0}nav .active{background:#d8b86b;color:#17231d}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}.panel{background:#1c2b25;border:1px solid #ffffff15;border-radius:16px;padding:22px}.pack{height:220px;width:150px;margin:15px auto 25px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#dfb865,#775c38);color:white;box-shadow:10px 15px 30px #0005;transform:rotate(-5deg);border:6px double #ffffff55;border-radius:3px}.pack b{font-size:50px}.pack.blue{background:linear-gradient(135deg,#6399b1,#344477)}.pack.pink{background:linear-gradient(135deg,#d99ca8,#69446d)}.price{color:#e5c77f;font-size:22px;font-weight:800}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.cardart{height:170px;border-radius:10px;background:radial-gradient(circle,#c3d6a0,#415849);display:grid;place-items:center;font-size:72px;margin-bottom:18px}.rare{background:linear-gradient(125deg,#a8cde2,#c8a5d5,#eee0a1,#92c0ba)}.tag{font-size:11px;letter-spacing:1px;color:#d8b86b}.muted{font-size:12px;color:#91a695}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:15px}.actions button{padding:8px;font-size:12px}.notice{padding:14px;border-left:3px solid #d8b86b;background:#28372a;margin-bottom:20px}footer{font-size:12px;color:#91a695;padding:30px;text-align:center}.start{text-align:center;max-width:750px;margin:10vh auto}.start h1{font-size:64px}.reveal{text-align:center;max-width:400px;margin:auto}.reveal .cardart{height:300px;font-size:110px}input{max-width:100%}@media(max-width:600px){h1{font-size:34px}.start h1{font-size:42px}header{padding:18px}.hero{padding:22px}main{padding:22px 16px}}
+</style><body><div id="app"><p>正在加载口袋藏馆。如果此提示一直存在，请下载完整项目后打开 index.html；文件预览可能不允许运行游戏脚本。</p></div><script>// Some file previews deny storage; allow play while clearly warning about persistence.
+const memoryStorage = new Map();
+const gameStorage = {
+  getItem(key) {
+    try { return window.localStorage.getItem(key); }
+    catch { return memoryStorage.get(key) ?? null; }
+  },
+  setItem(key, value) {
+    memoryStorage.set(key, value);
+    try { window.localStorage.setItem(key, value); }
+    catch { showStorageWarning(); }
+  }
+};
+function showStorageWarning() {
+  if (document.getElementById('storage-warning')) return;
+  const warning = document.createElement('p');
+  warning.id = 'storage-warning';
+  warning.className = 'notice';
+  warning.textContent = '当前浏览器禁止保存数据：进度仅保留在本次打开期间，请使用普通浏览器打开游戏并及时导出存档。';
+  document.body.prepend(warning);
+}
+function cardId() {
+  return globalThis.crypto?.randomUUID?.() ?? `card-${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+}
+</script><script>function mountSwipe() {
+  const top = document.querySelector('.swipe-top');
+  if (!top) return;
+  const scale = .7;
+  let gesture = null, busy = false;
+  function finish(dx, dy) {
+    if (busy) return;
+    busy = true;
+    top.style.transition = 'transform 240ms ease-out, opacity 240ms';
+    top.style.transform = `translate(${dx * 5 / scale}px, ${dy * 5 / scale}px) rotate(${dx / 12}deg)`;
+    top.style.opacity = '0';
+    const current = opening[0];
+    setTimeout(() => {
+      if (!top.isConnected || opening[0] !== current) return;
+      s.cards.push(opening.shift());
+      save();
+      render();
+      document.querySelector('.swipe-top')?.focus({ preventScroll: true });
+    }, 240);
+  }
+  function reset() {
+    gesture = null;
+    top.style.transition = 'transform 180ms ease-out';
+    top.style.transform = '';
+  }
+  top.addEventListener('pointerdown', event => {
+    if (busy || gesture || event.button !== 0 || event.isPrimary === false) return;
+    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    top.setPointerCapture?.(event.pointerId);
+    top.style.transition = 'none';
+  });
+  top.addEventListener('pointermove', event => {
+    if (!gesture || gesture.id !== event.pointerId || busy) return;
+    const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
+    top.style.transform = `translate(${dx / scale}px, ${dy / scale}px) rotate(${dx / 18}deg)`;
+  });
+  top.addEventListener('pointerup', event => {
+    if (!gesture || gesture.id !== event.pointerId || busy) return;
+    const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y;
+    const threshold = Math.max(55, Math.min(90, top.getBoundingClientRect().width * .23));
+    gesture = null;
+    if (Math.hypot(dx, dy) >= threshold) finish(dx, dy);
+    else reset();
+  });
+  top.addEventListener('pointercancel', reset);
+  top.addEventListener('lostpointercapture', () => { if (!busy) reset(); });
+  top.addEventListener('keydown', event => {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+      event.preventDefault();
+      finish(event.key === 'ArrowLeft' ? -100 : event.key === 'ArrowRight' ? 100 : 0,
+        event.key === 'ArrowUp' ? -100 : event.key === 'ArrowDown' ? 100 : 0);
+    }
+  });
+}
+function revealCard(c) {
+  return `<div class="cardart ${c.rare?'rare':''}">${icons[c.i]}</div><span class="tag">${c.lang} · ${c.rare?'闪卡 ✦':'普通卡'} ${c.error?'⭐ 错版':''}</span><h3>${names[c.i]}</h3><div class="price">${money(value(c))}</div><p class="muted">品相 ${c.condition.toFixed(1)}% · 左右居中 ${50-c.center/2}:${50+c.center/2}</p>`;
+}
+</script><script>const KEY='pocket-museum-v1';
+const packs=[{name:'森林的回响',lang:'日版',price:30,count:5,color:'',icon:'🌿'},{name:'星空的邂逅',lang:'简中',price:25,count:5,color:'blue',icon:'✨'},{name:'绯红与紫罗兰',lang:'美版',price:45,count:10,color:'pink',icon:'🔮'},{name:'旧时光收藏包',lang:'日版',price:180,count:5,color:'',icon:'⌛'}];
+const names=['皮卡丘','妙蛙种子','杰尼龟','小火龙','伊布','耿鬼','梦幻','喷火龙'];const icons=['⚡','🌱','💧','🔥','🦊','👻','🌸','🐉'];
+let s=null,tab='卡包商店',packLanguage='简中',notice='',opening=[];const app=document.querySelector('#app');
+const day=()=>Math.floor((Date.now()+8*3600000)/86400000);const money=n=>'¥ '+n.toFixed(2);const save=()=>gameStorage.setItem(KEY,JSON.stringify({...s,cards:[...new Map([...s.cards,...opening].map(c=>[c.id,c])).values()]}));
+function refresh(){if(s.day>=day())return;const n=day()-s.day;s.balance+=1000*n;s.day=day();s.old=Math.random()<.2;s.shop=Array.from({length:3},makeCard);for(const c of s.cards)if(c.state==='raw')c.condition=Math.max(0,c.condition-n*.3);settle();save()}
+function settle(){for(const c of s.cards){if(c.state==='grading'&&c.due<=day()){if(Math.random()<.25)c.state='lost';else {c.state='graded';c.grade=Math.max(1,Math.min(10,Math.round(c.condition/10-c.center/20)));}}if(c.state==='listed'&&c.due<=day()){s.balance+=c.ask;c.state='sold'}}}
+function makeCard(rare=false){const i=Math.floor(Math.random()*names.length);return {id:cardId(),i,rare,base:rare?60+Math.floor(Math.random()*450):2+Math.floor(Math.random()*14),condition:95+Math.random()*5,center:Math.floor(Math.random()*81),error:rare&&Math.random()<.005,state:'raw',lang:'日版'}}
+const value=c=>c.base*(c.condition/100)*(c.error?3:1)*(c.state==='graded'?([0,.4,.5,.6,.7,.8,1,1.2,1.5,2,3][c.grade]):1);
+function start(fresh){if(fresh){if(gameStorage.getItem(KEY)&&!confirm('新存档将覆盖当前存档，确定吗？'))return;s={balance:1000,day:day(),cards:[],shop:Array.from({length:3},()=>makeCard()),old:Math.random()<.2};save()}else{try{s=JSON.parse(gameStorage.getItem(KEY));if(!s||!Array.isArray(s.cards))throw Error();refresh();settle();save()}catch{notice='存档无法读取，请新建存档。';s=null}}render()}
+function card(c,shop=false){return `<article class="panel"><div class="cardart ${c.rare?'rare':''}">${icons[c.i]}</div><span class="tag">${c.lang} · ${c.rare?'闪卡 ✦':'普通卡'} ${c.error?'⭐ 错版':''}</span><div class="row"><h3>${names[c.i]}</h3><span>× ${shop?1:s.cards.filter(x=>x.i===c.i&&x.lang===c.lang&&x.rare===c.rare&&['raw','graded'].includes(x.state)).length}</span></div><div class="price">${money(value(c))}</div><p class="muted">品相 ${c.condition.toFixed(1)}% · 左右居中 ${50-c.center/2}:${50+c.center/2}${c.grade?' · 评级 '+c.grade:''}</p>${shop?`<button data-buy="${c.id}">买入收藏</button>`:c.state==='raw'||c.state==='graded'?`<div class="actions"><button data-sell="${c.id}">八折回收</button><button data-list="${c.id}">市场挂单</button>${c.state==='raw'?`<button data-grade="${c.id}">送评 ¥20</button>`:''}</div>`:`<p class="muted">${c.state==='grading'?'评级中': '市场挂单'} · 剩余 ${Math.max(0,c.due-day())} 天</p>`}</article>`}
+function render(){if(!s){app.innerHTML=`<main class="start"><div class="eyebrow">POCKET MUSEUM / 私人收藏室 · v0.3.2</div><h1>每一包，<br>都是新的期待。</h1><p>收集喜欢的伙伴，把闪耀的瞬间留在藏馆。<br>你的拆卡日记，从这里开始。</p><div class="pack"><b>⚡</b><strong>口袋藏馆</strong></div><button class="gold" id="new">开启新存档</button> <button id="continue" ${gameStorage.getItem(KEY)?'':'disabled'}>继续收藏</button><p>${notice}</p></main>`;document.querySelector('#new').onclick=()=>start(true);document.querySelector('#continue').onclick=()=>start(false);return}
+const owned=s.cards.filter(c=>['raw','graded'].includes(c.state));app.innerHTML=`<header><div><strong>◈ 口袋藏馆</strong><br><small>POCKET MUSEUM · v0.3.2</small></div><div><span class="muted">收藏资金 </span><b class="price">${money(s.balance)}</b> <button id="exit">存档退出</button></div></header><main><section class="hero"><div class="eyebrow">YOUR LITTLE COLLECTING RITUAL</div><h1>今天，会遇见谁？</h1><p>打开一包惊喜，收藏一份心动。</p><div class="row"><span>◷ 每日收入 ¥1,000 · 北京时间零点结算</span><span>藏馆已收录 ${owned.length} 张卡片</span></div></section><div class="notice">体验版：卡包名称、卡图、价格、卡位与概率均为模拟，非现实数据。评级有 25% 损毁风险。</div>${notice?`<p role="status">${notice}</p>`:''}<nav>${['卡包商店','我的图鉴','评级仓库','交易市场'].map(t=>`<button data-tab="${t}" class="${tab===t?'active':''}">${t}</button>`).join('')}</nav><section id="content"></section></main><footer>本地自动存档 · 建议定期导出备份 · 离线天数会结算收入与裸卡磨损<br><button id="export">导出存档</button></footer>`;
+const area=document.querySelector('#content');if(opening.length){const c=opening[0];area.innerHTML=`<div class="reveal"><h2>滑开卡片，揭晓下一张</h2><p class="muted" aria-live="polite">剩余 ${opening.length} 张 · 向任意方向滑动 · 键盘方向键也可翻卡</p><div class="swipe-stack">${opening[1]?`<article class="panel swipe-under" aria-hidden="true">${revealCard(opening[1])}</article>`:'<div class="swipe-empty">✦<p>最后一张，滑开完成收藏</p></div>'}<article class="panel swipe-top" tabindex="0" role="group" aria-label="当前卡片，拖动滑开或按方向键收入图鉴">${revealCard(c)}</article></div><p class="muted">轻点不会翻卡；滑动距离不足时会回到原位。</p></div>`;mountSwipe()}else if(tab==='卡包商店'){area.innerHTML=`<div class="row"><h2>挑一包，试试手气</h2><div class="language-switch" role="group" aria-label="卡包语言版本">${['简中','日版','美版'].map(lang=>`<button type="button" data-language="${lang}" aria-pressed="${packLanguage===lang}" class="${packLanguage===lang?'selected':''}">${lang}</button>`).join('')}</div><span class="muted">老卡包每日 20% 概率上架</span></div><div class="grid">${packs.map((p,i)=>p.lang!==packLanguage||(i===3&&!s.old)?'':`<article class="panel"><span class="tag">${p.lang} / ${p.count} CARDS</span><div class="pack ${p.color}"><b>${p.icon}</b><strong>${p.name}</strong></div><h3>${p.name}</h3><p class="muted">最后一张 20% 概率为闪卡（模拟）</p><div class="row"><span class="price">${money(p.price)}</span><button class="gold" data-pack="${i}">拆一包 ↗</button></div></article>`).join('')}</div>`}else if(tab==='交易市场'){area.innerHTML=`<h2>卡店老板的今日收藏</h2><div class="grid">${s.shop.map(c=>card(c,true)).join('')}</div><h2>我的市场挂单</h2><div class="grid">${s.cards.filter(c=>c.state==='listed').map(c=>card(c)).join('')||'<p>暂无挂单。挂单按锁定价格在 1–7 天后模拟成交。</p>'}</div>`}else{const cards=s.cards.filter(c=>tab==='我的图鉴'?c.state==='raw':['graded','grading'].includes(c.state));area.innerHTML=`<h2>${tab} <span class="muted">${cards.length} 张</span></h2><div class="grid">${cards.map(c=>card(c)).join('')||'<p>这里还很安静，先拆一包试试吧。</p>'}</div><p class="muted">历史评级损毁：${s.cards.filter(c=>c.state==='lost').length} 张</p>`}
+document.querySelector('#exit').onclick=()=>{for(const c of opening)s.cards.push(c);opening=[];save();s=null;render()};document.querySelector('#export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(s)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='pocket-museum.json';a.click();URL.revokeObjectURL(url)};
+document.querySelectorAll('[data-language]').forEach(b=>b.onclick=()=>{packLanguage=b.dataset.language;render()});
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});document.querySelectorAll('[data-pack]').forEach(b=>b.onclick=()=>{const p=packs[+b.dataset.pack];if(s.balance<p.price){notice='资金不足，明天再来看看吧。';render();return}s.balance-=p.price;opening=Array.from({length:p.count},(_,i)=>({...makeCard(i===p.count-1&&Math.random()<.2),lang:p.lang}));s.cards.push(...opening);save();s.cards.splice(-opening.length);notice='卡片已保存，刷新页面也不会丢失。';render()});
+for(const action of ['sell','grade','list','buy'])document.querySelectorAll(`[data-${action}]`).forEach(b=>b.onclick=()=>{const c=(action==='buy'?s.shop:s.cards).find(c=>c.id===b.dataset[action]);if(!c)return;if(action==='buy'){if(s.balance<value(c)){notice='资金不足';render();return}s.balance-=value(c);s.shop=s.shop.filter(x=>x.id!==c.id);s.cards.push(c)}if(action==='sell'){s.balance+=value(c)*.8;c.state='sold'}if(action==='grade'){if(s.balance<20)return;if(!confirm('支付 ¥20 送评，1 天后返回；有 25% 概率永久损毁。继续？'))return;s.balance-=20;c.state='grading';c.due=day()+1}if(action==='list'){const days=Number(prompt('挂单天数（1–7）','3'));if(!Number.isInteger(days)||days<1||days>7)return;c.ask=value(c);c.state='listed';c.due=day()+days}save();render()})}
+setInterval(()=>{if(s&&!opening.length){refresh();render()}},60000);render();
+</script></body></html>
