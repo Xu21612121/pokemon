@@ -23,7 +23,8 @@ jobs:
           node --check app.js
           node --check compat.js
           mkdir -p public
-          cp index.html app.js compat.js swipe.js style.css public/
+          cp index.html app.js compat.js swipe.js style.css anniversary-data.js anniversary.js public/
+          cp -r assets public/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
