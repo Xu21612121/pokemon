@@ -1,0 +1,9 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const read = name => fs.readFileSync(path.join(__dirname, name), 'utf8');
+const html = read('index.html')
+  .replace('<link rel="stylesheet" href="style.css">', `<style>${read('style.css').replace(/@import[^;]+;/g, '')}</style>`)
+  .replace('<script src="compat.js"></script>', `<script>${read('compat.js')}</script>`)
+  .replace('<script src="app.js"></script>', `<script>${read('app.js')}</script>`);
+fs.writeFileSync(path.join(__dirname, '口袋藏馆.html'), html);
+console.log('Created standalone 口袋藏馆.html');
