@@ -380,7 +380,7 @@ const anniversaryCards = [
   {
     "key": "30th-cn-104",
     "number": "104",
-    "name": "阿罗椰椰树",
+    "name": "阿罗拉椰蛋树",
     "image": "assets/30th/104.webp",
     "pikachu": false
   },
@@ -443,7 +443,7 @@ const anniversaryCards = [
   {
     "key": "30th-cn-123",
     "number": "123",
-    "name": "一对鼠",
+    "name": "一家鼠",
     "image": "assets/30th/123.webp",
     "pikachu": false
   },
@@ -492,7 +492,7 @@ const anniversaryCards = [
   {
     "key": "30th-cn-140",
     "number": "140",
-    "name": "勾魂眼",
+    "name": "狃拉",
     "image": "assets/30th/140.webp",
     "pikachu": false
   },
@@ -562,14 +562,14 @@ const anniversaryCards = [
   {
     "key": "30th-cn-151",
     "number": "151",
-    "name": "捷克罗姆",
+    "name": "达克莱伊&克雷色利亚LEGEND（上）",
     "image": "assets/30th/151.webp",
     "pikachu": false
   },
   {
     "key": "30th-cn-152",
     "number": "152",
-    "name": "克雷色利亚",
+    "name": "达克莱伊&克雷色利亚LEGEND（下）",
     "image": "assets/30th/152.webp",
     "pikachu": false
   },
@@ -604,7 +604,7 @@ const anniversaryCards = [
   {
     "key": "30th-cn-157",
     "number": "157",
-    "name": "阿罗拉椰蛋树",
+    "name": "甲贺忍蛙BREAK",
     "image": "assets/30th/157.webp",
     "pikachu": false
   },
@@ -625,7 +625,7 @@ const anniversaryCards = [
   {
     "key": "30th-cn-160",
     "number": "160",
-    "name": "卡比兽&伊布GX",
+    "name": "皮卡丘&捷克罗姆GX",
     "image": "assets/30th/160.webp",
     "pikachu": false
   },
