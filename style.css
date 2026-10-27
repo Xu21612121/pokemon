@@ -5,6 +5,7 @@
 .pack-cover{height:260px;margin:15px auto 25px;display:flex;justify-content:center}.pack-cover img{display:block;max-width:100%;height:100%;object-fit:contain;border-radius:4px;box-shadow:0 10px 24px #0004}
 .missing-art{height:100%;display:grid;place-content:center;gap:20px;text-align:center;font-size:24px;color:#e5c77f;background:linear-gradient(140deg,#3d2754,#244b51);border:2px dashed #d8b86b;border-radius:10px}.missing-art small{font-size:14px}
 body.is-opening{overflow:hidden;overscroll-behavior:none}
+body.is-opening #storage-warning{display:none}
 .opening-screen{position:fixed;inset:0;max-width:none;margin:0;padding:20px;display:grid;place-items:center;overflow:hidden;background:#121d1b}
 .opening-screen .swipe-stack{zoom:1;margin:0;width:min(263px,76vw,54vh);width:min(263px,76vw,54dvh);max-width:none}
 .opening-screen article{padding:0;border:0;background:transparent;border-radius:10px;align-self:center}
