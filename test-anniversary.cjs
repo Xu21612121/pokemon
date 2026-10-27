@@ -39,7 +39,7 @@ for(const [group,rates] of [['rgb',{rgb:1}],['fur',{fur:1}],['sar',{sar:1}],['ar
  const pack=drawConfiguredAnniversary(fixture,{rgb:0,fur:0,sar:0,ar:0,rr:0,gold:0,...rates},()=>0.5,true);
  const index=['rgb','fur'].includes(group)?2:['sar','ar','rr'].includes(group)?3:4;
  if(pack[index].slotGroup!==group||pack[5].slotGroup!=='energy')throw Error('Forced slot '+group);
- if(!['sar','ar','rr'].includes(group)&&pack[3].slotGroup!=='r')throw Error('R fallback');
+ if(!['sar','ar','rr'].includes(group)&&pack[3].slotGroup!=='normal')throw Error('Japanese common fallback');
 }
 `,context);
 for(const file of vm.runInContext('anniversaryJpCards.map(c=>c.image)',context))assert.ok(fs.existsSync(file),file);

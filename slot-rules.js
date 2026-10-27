@@ -1,4 +1,4 @@
-// User-defined slots with community sample rates; RGB remains disabled pending data.
+// User-defined slots with community sample rates; Japanese base cards share one pool.
 // Rates must be per-pack probabilities; box/case guarantees need a separate model.
 function drawConfiguredAnniversary(catalog, rates, random = Math.random, energyLast = false) {
   for (const key of ['fur','rgb','sar','ar','rr','gold']) {
@@ -12,11 +12,9 @@ function drawConfiguredAnniversary(catalog, rates, random = Math.random, energyL
     if(categories.reduce((sum,k)=>sum+rates[k],0)>1)throw Error('单包互斥出货概率之和不能超过1');
     const roll=random();let end=0,hit=null;
     for(const group of categories){end+=rates[group];if(roll<end){hit=group;break;}}
-    // Until the user supplies a verified R list, the base pool is explicitly provisional.
-    const baseRare=catalog.some(c=>c.slotGroup==='r')?'r':'normal';
     return [sample('normal'),sample('normal'),
       sample(['rgb','fur'].includes(hit)?hit:'normal'),
-      sample(['sar','ar','rr'].includes(hit)?hit:baseRare),
+      sample(['sar','ar','rr'].includes(hit)?hit:'normal'),
       sample(hit==='gold'?'gold':'pikachu'),sample('energy')];
   }
   const special=random(),rare=random(),last=random();
