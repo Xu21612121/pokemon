@@ -4,3 +4,11 @@
 .cardart.has-art{display:block;overflow:hidden;background:transparent;height:260px;font-size:0}.real-card{width:100%;height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none}.reveal .cardart.has-art{height:300px}.anniversary-logo{width:130px;height:auto;margin-bottom:18px}.pack small{font-size:10px;margin-bottom:12px}
 .pack-cover{height:260px;margin:15px auto 25px;display:flex;justify-content:center}.pack-cover img{display:block;max-width:100%;height:100%;object-fit:contain;border-radius:4px;box-shadow:0 10px 24px #0004}
 .missing-art{height:100%;display:grid;place-content:center;gap:20px;text-align:center;font-size:24px;color:#e5c77f;background:linear-gradient(140deg,#3d2754,#244b51);border:2px dashed #d8b86b;border-radius:10px}.missing-art small{font-size:14px}
+body.is-opening{overflow:hidden;overscroll-behavior:none}
+.opening-screen{position:fixed;inset:0;max-width:none;margin:0;padding:20px;display:grid;place-items:center;overflow:hidden;background:#121d1b}
+.opening-screen .swipe-stack{zoom:1;margin:0;width:min(263px,76vw,54vh);width:min(263px,76vw,54dvh);max-width:none}
+.opening-screen article{padding:0;border:0;background:transparent;border-radius:10px;align-self:center}
+.opening-screen .swipe-top:focus-visible{outline:none}
+.opening-screen .cardart,.opening-screen .cardart.has-art{margin:0;height:auto;min-height:0;background:transparent;border-radius:10px}
+.opening-screen .real-card{height:auto;max-height:76vh;max-height:76dvh;object-fit:contain}
+.opening-screen .cardart:not(.has-art){height:360px;max-height:76dvh;background:linear-gradient(125deg,#a8cde2,#c8a5d5,#eee0a1);display:grid;place-items:center}

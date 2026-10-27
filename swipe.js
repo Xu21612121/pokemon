@@ -1,7 +1,7 @@
 function mountSwipe() {
   const top = document.querySelector('.swipe-top');
   if (!top) return;
-  const scale = .7;
+  const scale = document.body.classList.contains('is-opening') ? 1 : .7;
   let gesture = null, busy = false;
   function finish(dx, dy) {
     if (busy) return;
@@ -53,5 +53,5 @@ function mountSwipe() {
   });
 }
 function revealCard(c) {
-  return `<div class="cardart ${c.cardKey?'has-art':''} ${c.rare?'rare':''}">${cardPicture(c)}</div><span class="tag">${c.lang} · ${c.rare?'闪卡 ✦':'普通卡'} ${c.error?'⭐ 错版':''}</span><h3>${cardTitle(c)}</h3><div class="price">${money(value(c))}${c.priceKind==='simulation'?'<small class="muted"> · 游戏估值，非日版报价</small>':''}</div><p class="muted">品相 ${c.condition.toFixed(1)}% · 左右居中 ${50-c.center/2}:${50+c.center/2}</p>`;
+  return `<div class="cardart ${c.cardKey?'has-art':''} ${c.rare?'rare':''}">${cardPicture(c)}</div>`;
 }
