@@ -1322,7 +1322,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-darkness",
     "number": "energy-darkness",
-    "name": "320x447",
+    "name": "基本恶能量",
     "image": "assets/30th-jp/energy-darkness.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1330,7 +1330,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-fighting",
     "number": "energy-fighting",
-    "name": "320x447",
+    "name": "基本斗能量",
     "image": "assets/30th-jp/energy-fighting.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1338,7 +1338,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-fire",
     "number": "energy-fire",
-    "name": "320x447",
+    "name": "基本火能量",
     "image": "assets/30th-jp/energy-fire.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1346,7 +1346,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-grass",
     "number": "energy-grass",
-    "name": "320x447",
+    "name": "基本草能量",
     "image": "assets/30th-jp/energy-grass.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1354,7 +1354,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-lightning",
     "number": "energy-lightning",
-    "name": "320x447",
+    "name": "基本雷能量",
     "image": "assets/30th-jp/energy-lightning.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1362,7 +1362,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-metal",
     "number": "energy-metal",
-    "name": "320x447",
+    "name": "基本钢能量",
     "image": "assets/30th-jp/energy-metal.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1370,7 +1370,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-psychic",
     "number": "energy-psychic",
-    "name": "320x447",
+    "name": "基本超能量",
     "image": "assets/30th-jp/energy-psychic.webp",
     "pikachu": false,
     "slotGroup": "energy"
@@ -1378,7 +1378,7 @@ const anniversaryJpCards = [
   {
     "key": "30th-jp-energy-water",
     "number": "energy-water",
-    "name": "320x447",
+    "name": "基本水能量",
     "image": "assets/30th-jp/energy-water.webp",
     "pikachu": false,
     "slotGroup": "energy"

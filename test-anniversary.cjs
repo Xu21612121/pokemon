@@ -22,15 +22,24 @@ assert.throws(()=>vm.runInContext('drawConfiguredAnniversary([], {})',context));
 vm.runInContext(`
 if(anniversaryJpCards.length!==176)throw Error('Missing Japanese images');
 if(anniversaryJpCards.filter(c=>c.slotGroup==='pikachu').length!==30)throw Error('Pikachu pool');
-const seen=new Set();
-for(let i=0;i<20000;i++){
+const seen=new Set(),jpCounts={rgb:0,fur:0,sar:0,ar:0,rr:0,gold:0};
+for(let i=0;i<100000;i++){
  const pack=openAnniversary('日版');
  if(pack.length!==6||pack.some(c=>c.lang!=='日版'||!c.cardKey.startsWith('30th-jp-')||c.priceKind!=='simulation'||!Number.isFinite(c.base)))throw Error('Japanese pack mismatch');
- if(pack.slice(0,3).some(c=>c.slotGroup!=='normal')||!['normal','fur'].includes(pack[3].slotGroup)||!['normal','sar','ar','rr'].includes(pack[4].slotGroup)||!['gold','pikachu'].includes(pack[5].slotGroup))throw Error('Japanese slots mismatch');
- for(const c of pack){if(!findCardArt(c.cardKey)?.image)throw Error('Missing art');seen.add(c.cardKey);}
+ if(pack.slice(0,2).some(c=>c.slotGroup!=='normal')||!['normal','fur','rgb'].includes(pack[2].slotGroup)||!['normal','r','sar','ar','rr'].includes(pack[3].slotGroup)||!['gold','pikachu'].includes(pack[4].slotGroup)||pack[5].slotGroup!=='energy')throw Error('Japanese slots mismatch');
+ if(pack.filter(c=>c.slotGroup in jpCounts).length>1)throw Error('Multiple hits');
+ for(const c of pack){if(c.slotGroup in jpCounts)jpCounts[c.slotGroup]++;if(!findCardArt(c.cardKey)?.image)throw Error('Missing art');seen.add(c.cardKey);}
 }
-if(seen.size!==165)throw Error('Incomplete active pool '+seen.size);
+if(seen.size!==176)throw Error('Incomplete active pool '+seen.size);
 if(sameCard({cardKey:'30th-cn-017'},{cardKey:'30th-jp-017'}))throw Error('Languages merged');
-console.log('PASS: Japanese 20,000 packs, all 165 cards reachable, isolated identities and simulation prices');
+for(const k in jpCounts){const p=anniversaryJpRates[k];if(Math.abs(jpCounts[k]/100000-p)>6*Math.sqrt(p*(1-p)/100000))throw Error('Japanese rate '+k);}
+console.log('PASS: Japanese 100,000 packs, all 176 cards reachable, fixed energy, one hit maximum, English reference frequencies',jpCounts);
+const fixture=['normal','r','fur','rgb','sar','ar','rr','gold','pikachu','energy'].map(slotGroup=>({slotGroup}));
+for(const [group,rates] of [['rgb',{rgb:1}],['fur',{fur:1}],['sar',{sar:1}],['ar',{ar:1}],['rr',{rr:1}],['gold',{gold:1}]]){
+ const pack=drawConfiguredAnniversary(fixture,{rgb:0,fur:0,sar:0,ar:0,rr:0,gold:0,...rates},()=>0.5,true);
+ const index=['rgb','fur'].includes(group)?2:['sar','ar','rr'].includes(group)?3:4;
+ if(pack[index].slotGroup!==group||pack[5].slotGroup!=='energy')throw Error('Forced slot '+group);
+ if(!['sar','ar','rr'].includes(group)&&pack[3].slotGroup!=='r')throw Error('R fallback');
+}
 `,context);
 for(const file of vm.runInContext('anniversaryJpCards.map(c=>c.image)',context))assert.ok(fs.existsSync(file),file);
