@@ -1,6 +1,6 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const context=vm.createContext({console});
-for(const file of ['anniversary-data.js','anniversary-jp-data.js','price-data.js','slot-rules.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
+for(const file of ['anniversary-data.js','anniversary-jp-data.js','price-data.js','jp-price-data.js','slot-rules.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
 vm.runInContext(`function makeCard(){return {condition:100,rare:true,state:'raw'}}`,context);
 vm.runInContext(fs.readFileSync('anniversary.js','utf8'),context);
 vm.runInContext(`
@@ -20,12 +20,20 @@ console.log('PASS: 50,000 packs, slot exclusivity, static prices, category frequ
 `,context);
 assert.throws(()=>vm.runInContext('drawConfiguredAnniversary([], {})',context));
 vm.runInContext(`
+if(Object.keys(japanesePriceQuotes).length!==175||japanesePriceMeta.usdToCny!==7.2)throw Error('Price metadata');
+for(const [key,usd,cny] of [['134',52.51,378.07],['135',66.22,476.78],['137',166.84,1201.25]]){
+ const quote=cardPriceQuotes['30th-jp-'+key];if(quote.usd!==usd||quote.cny!==cny)throw Error('Key price mismatch '+key);
+}
+for(const quote of Object.values(japanesePriceQuotes))if(quote.cny!==Math.round(quote.usd*7.2*100)/100)throw Error('FX mismatch');
+if(japanesePriceQuotes['30th-jp-energy-fighting'])throw Error('Fabricated energy quote');
+`,context);
+vm.runInContext(`
 if(anniversaryJpCards.length!==176)throw Error('Missing Japanese images');
 if(anniversaryJpCards.filter(c=>c.slotGroup==='pikachu').length!==30)throw Error('Pikachu pool');
 const seen=new Set(),jpCounts={rgb:0,fur:0,sar:0,ar:0,rr:0,gold:0};
 for(let i=0;i<100000;i++){
  const pack=openAnniversary('日版');
- if(pack.length!==6||pack.some(c=>c.lang!=='日版'||!c.cardKey.startsWith('30th-jp-')||c.priceKind!=='simulation'||!Number.isFinite(c.base)))throw Error('Japanese pack mismatch');
+ if(pack.length!==6||pack.some(c=>c.lang!=='日版'||!c.cardKey.startsWith('30th-jp-')||!Number.isFinite(c.base)||c.base!==(cardPriceQuotes[c.cardKey]?.cny??.5)))throw Error('Japanese pack/price mismatch');
  if(pack.slice(0,2).some(c=>c.slotGroup!=='normal')||!['normal','fur','rgb'].includes(pack[2].slotGroup)||!['normal','r','sar','ar','rr'].includes(pack[3].slotGroup)||!['gold','pikachu'].includes(pack[4].slotGroup)||pack[5].slotGroup!=='energy')throw Error('Japanese slots mismatch');
  if(pack.filter(c=>c.slotGroup in jpCounts).length>1)throw Error('Multiple hits');
  for(const c of pack){if(c.slotGroup in jpCounts)jpCounts[c.slotGroup]++;if(!findCardArt(c.cardKey)?.image)throw Error('Missing art');seen.add(c.cardKey);}
