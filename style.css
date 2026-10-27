@@ -5,6 +5,14 @@
 .pack-cover{height:260px;margin:15px auto 25px;display:flex;justify-content:center}.pack-cover img{display:block;max-width:100%;height:100%;object-fit:contain;border-radius:4px;box-shadow:0 10px 24px #0004}
 .missing-art{height:100%;display:grid;place-content:center;gap:20px;text-align:center;font-size:24px;color:#e5c77f;background:linear-gradient(140deg,#3d2754,#244b51);border:2px dashed #d8b86b;border-radius:10px}.missing-art small{font-size:14px}
 body.is-opening{overflow:hidden;overscroll-behavior:none}
+body.has-dialog{overflow:hidden}
+.grading-dialog{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow:auto;padding:26px;border:1px solid #d8b86b66;border-radius:18px;background:#121d1b;color:#eee8dc;box-shadow:0 24px 80px #0009}
+.grading-dialog::backdrop{background:#0009}
+.grading-dialog h2{margin:0 0 16px;font-size:23px;color:#e5c77f}
+.grading-dialog p{margin:0;line-height:1.9}
+.grading-dialog .risk{color:#e5c77f}
+.dialog-actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin-top:24px}
+.grading-dialog button:focus-visible{outline:2px solid #e5c77f;outline-offset:3px}
 .collection-filter{position:relative}
 .collection-filter-options:not([hidden]){display:grid;gap:6px;position:absolute;right:0;top:calc(100% + 8px);width:220px;max-width:calc(100vw - 32px);padding:8px;border:1px solid #ffffff24;border-radius:12px;background:#1c2b25;box-shadow:0 12px 28px #0006;z-index:5}
 .collection-filter-options button{text-align:left}
