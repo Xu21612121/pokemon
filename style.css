@@ -7,7 +7,8 @@
 body.is-opening{overflow:hidden;overscroll-behavior:none}
 body.is-opening #storage-warning{display:none}
 .opening-screen{position:fixed;inset:0;max-width:none;margin:0;padding:20px;display:grid;place-items:center;overflow:hidden;background:#121d1b}
-.opening-screen .swipe-stack{zoom:1;margin:0;width:min(263px,76vw,54vh);width:min(263px,76vw,54dvh);max-width:none}
+.opening-screen .swipe-stack{zoom:1;margin:0;width:min(263px,76vw,calc(70vh - 84px));width:min(263px,76vw,calc(70dvh - 84px));max-width:none}
+.opening-price{position:absolute;top:100%;left:0;width:100%;margin-top:14px;text-align:center;line-height:1.3;pointer-events:none}
 .opening-screen article{padding:0;border:0;background:transparent;border-radius:10px;align-self:center}
 .opening-screen .swipe-top:focus-visible{outline:none}
 .opening-screen .cardart,.opening-screen .cardart.has-art{margin:0;height:auto;min-height:0;background:transparent;border-radius:10px}
