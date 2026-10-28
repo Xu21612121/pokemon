@@ -1,4 +1,4 @@
-function findCardArt(key){return anniversaryCards.find(a=>a.key===key)||(typeof anniversaryJpCards!=='undefined'?anniversaryJpCards.find(a=>a.key===key):null);}
+function findCardArt(key){return anniversaryCards.find(a=>a.key===key)||(typeof anniversaryJpCards!=='undefined'?anniversaryJpCards.find(a=>a.key===key):null)||(typeof m6Cards!=='undefined'?m6Cards.find(a=>a.key===key):null);}
 function cardTitle(c){return c.cardKey ? findCardArt(c.cardKey)?.name || c.cardKey : names[c.i];}
 function cardPicture(c){const item=findCardArt(c.cardKey);return item?(item.image?`<img class="real-card" src="${item.image}" alt="${item.name} ${item.number}" draggable="false">`:`<div class="missing-art">SAR<br>${item.name}<br><small>${item.number}/103 · 卡图待补充</small></div>`):icons[c.i];}
 function sameCard(a,b){return a.cardKey||b.cardKey?a.cardKey===b.cardKey:a.i===b.i&&a.lang===b.lang&&a.rare===b.rare;}
