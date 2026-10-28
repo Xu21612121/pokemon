@@ -1,6 +1,7 @@
-function findCardArt(key){return anniversaryCards.find(a=>a.key===key)||(typeof anniversaryJpCards!=='undefined'?anniversaryJpCards.find(a=>a.key===key):null)||(typeof m6Cards!=='undefined'?m6Cards.find(a=>a.key===key):null);}
-function cardTitle(c){return c.cardKey ? findCardArt(c.cardKey)?.name || c.cardKey : names[c.i];}
-function cardPicture(c){const item=findCardArt(c.cardKey);return item?(item.image?`<img class="real-card" src="${item.image}" alt="${item.name} ${item.number}" draggable="false">`:`<div class="missing-art">SAR<br>${item.name}<br><small>${item.number}/103 · 卡图待补充</small></div>`):icons[c.i];}
+function findCardArt(key){return anniversaryCards.find(a=>a.key===key)||(typeof anniversaryJpCards!=='undefined'?anniversaryJpCards.find(a=>a.key===key):null)||(typeof m6Cards!=='undefined'?m6Cards.find(a=>a.key===key):null)||(typeof sv151Cards!=='undefined'?sv151Cards.find(a=>a.key===key):null);}
+function variantLabel(item){return item?.variant==='masterball'?'大师球闪':item?.variant==='pokeball'?'精灵球闪':'';}
+function cardTitle(c){const item=findCardArt(c.cardKey);return c.cardKey?(item?item.name+(variantLabel(item)?'（'+variantLabel(item)+'）':''):c.cardKey):names[c.i];}
+function cardPicture(c){const item=findCardArt(c.cardKey);if(!item)return icons[c.i];const variant=variantLabel(item);if(!item.image)return `<div class="missing-art">${cardTitle(c)}<small>${item.number} · 卡图待补充</small></div>`;const art=`<img class="real-card" src="${item.image}" alt="${cardTitle(c)} ${item.number}" draggable="false">`;return variant?`<div class="variant-art">${art}<span class="variant-badge ${item.variant}">${variant}${item.illustrationOnly?' · 示意图':''}</span></div>`:art;}
 function sameCard(a,b){return a.cardKey||b.cardKey?a.cardKey===b.cardKey:a.i===b.i&&a.lang===b.lang&&a.rare===b.rare;}
 const sarNames=['呆火鳄ex','甲贺忍蛙ex','皮卡丘ex','皮卡丘ex','超梦ex','梦幻ex','仙子伊布ex','耿鬼ex','基拉祈ex','暴飞龙ex'];
 for(let i=0;i<10;i++){const number=String(124+i);anniversaryCards.push({key:'30th-cn-'+number,number,name:sarNames[i],image:null,pikachu:false});}
