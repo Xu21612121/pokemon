@@ -1,7 +1,7 @@
 const KEY='pocket-museum-v1';
 const packs=[{name:'30周年庆典 M6a',lang:'日版',price:25,count:6,color:'blue',icon:'✨',anniversary:true},{name:'Storm Emeralda M6',lang:'日版',price:30,count:5,set:'m6',icon:'🐉'},{name:'宝可梦卡牌151 sv2a',lang:'日版',price:130,count:7,set:'sv151',icon:'🌸'},{name:'30周年庆典',lang:'简中',price:25,count:6,color:'blue',icon:'✨'},{name:'绯红与紫罗兰',lang:'美版',price:45,count:10,color:'pink',icon:'🔮'},{name:'旧时光收藏包',old:true,lang:'日版',price:180,count:5,color:'',icon:'⌛'}];
 const names=['皮卡丘','妙蛙种子','杰尼龟','小火龙','伊布','耿鬼','梦幻','喷火龙'];const icons=['⚡','🌱','💧','🔥','🦊','👻','🌸','🐉'];
-let s=null,tab='卡包商店',packLanguage='日版',notice='',opening=[],collectionFocus=null;const app=document.querySelector('#app');
+let s=null,tab='卡包商店',packLanguage='日版',notice='',opening=[],collectionFocus=null,collectionReturn=null;const app=document.querySelector('#app');
 const day=()=>Math.floor((Date.now()+8*3600000)/86400000);const money=n=>'¥ '+n.toFixed(2);const save=()=>gameStorage.setItem(KEY,JSON.stringify({...s,cards:[...new Map([...s.cards,...opening].map(c=>[c.id,c])).values()]}));
 function refresh(){if(s.day>=day())return;const n=day()-s.day;s.balance+=1000*n;s.day=day();s.old=Math.random()<.2;s.shop=Array.from({length:3},makeCard);for(const c of s.cards)if(c.state==='raw')c.condition=Math.max(0,c.condition-n*.3);settle();save()}
 function settle(){for(const c of s.cards){if(c.state==='grading'&&c.due<=day()){if(Math.random()<.25){c.state='lost';c.lostDay=c.due;}else {c.state='graded';c.gradeReport={condition:c.condition,center:c.center,error:!!c.error};c.grade=gradeScore(c.gradeReport);}}if(c.state==='listed'&&c.due<=day()){s.balance+=c.ask;c.state='sold'}}}
@@ -97,6 +97,21 @@ function collectionCatalogs(){return [
  {id:'other',name:'其他 / 旧版模拟卡',cards:[]}
 ]}
 function collectionSetOf(c){return collectionCatalogs().find(group=>group.cards.some(item=>item.key===c.cardKey))?.id||'other'}
+function openCollectionDetail(button){
+ const tiles=[...document.querySelectorAll('[data-card-detail]')];
+ collectionReturn={key:button.dataset.cardDetail,y:window.scrollY,offset:button.getBoundingClientRect().top,index:tiles.indexOf(button)};
+ collectionFocus=button.dataset.cardDetail;render();
+ document.querySelector('#back-collection')?.focus({preventScroll:true});
+ document.querySelector('#content')?.scrollIntoView({block:'start',behavior:'instant'});
+}
+function returnToCollection(){
+ const position=collectionReturn;
+ collectionFocus=null;tab='我的图鉴';render();
+ const tiles=[...document.querySelectorAll('[data-card-detail]')];
+ const target=position&&(tiles.find(b=>b.dataset.cardDetail===position.key)||tiles[Math.min(position.index,tiles.length-1)]);
+ target?.focus({preventScroll:true});
+ if(position)window.scrollTo({top:target?window.scrollY+target.getBoundingClientRect().top-position.offset:position.y,behavior:'instant'});
+}
 function collectionIdentity(c){return c.cardKey||'legacy-'+c.lang+'-'+c.i+'-'+!!c.rare}
 function groupedCollection(cards){
  const groups=new Map();
@@ -175,9 +190,9 @@ const area=document.querySelector('#content');if(tab==='卡包商店'){area.inne
  const lost=s.cards.filter(c=>c.state==='lost');
  area.innerHTML=`<h2>评级仓库 · ${cards.length} 张</h2><div class="grid">${cards.map(c=>card(c)).join('')||'<p>暂无送评卡牌。</p>'}</div><h2>损毁记录 · ${lost.length} 张</h2><p class="muted">以下卡牌已永久损毁，不计入当前收藏进度。</p><div class="grid">${lost.map(c=>card(c)).join('')||'<p>暂无损毁记录。</p>'}</div>`;
 }
-document.querySelectorAll('[data-card-detail]').forEach(b=>b.onclick=()=>{collectionFocus=b.dataset.cardDetail;render();document.querySelector('#back-collection')?.focus({preventScroll:true})});
+document.querySelectorAll('[data-card-detail]').forEach(b=>b.onclick=()=>openCollectionDetail(b));
 const backCollection=document.querySelector('#back-collection');
-if(backCollection)backCollection.onclick=()=>{const key=collectionFocus;collectionFocus=null;render();[...document.querySelectorAll('[data-card-detail]')].find(b=>b.dataset.cardDetail===key)?.focus({preventScroll:true})};
+if(backCollection)backCollection.onclick=returnToCollection;
 document.querySelectorAll('[data-collection-set]').forEach(b=>b.onclick=()=>{collectionFocus=null;s.collectionSet=b.dataset.collectionSet;save();render()});
 document.querySelectorAll('[data-cancel-list]').forEach(b=>b.onclick=()=>cancelListing(b.dataset.cancelList));
 
