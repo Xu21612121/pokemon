@@ -107,17 +107,55 @@ function renderCollection(area){
  area.innerHTML=`<div class="row"><h2>我的图鉴</h2>${collectionFilter()}</div><div class="actions collection-sets">${catalogs.map(g=>`<button data-collection-set="${g.id}" class="${g.id===selected.id?'gold':''}">${g.name}</button>`).join('')}</div><h3>${selected.name} · ${cards.length} 张</h3><p>收集进度：${unique.size}${total?' / '+total+' 种（'+(unique.size/total*100).toFixed(1)+'%）':' 种（模拟卡无固定总数）'}</p>${total?`<progress aria-label="收集进度" value="${unique.size}" max="${total}"></progress>`:''}<p class="muted">按当前持有的不同版本计数，含评级、送评与挂单；重复卡不重复计数，已售出和损毁不计入。151普通、球闪、大师球分别统计。</p><div class="grid">${cards.map(c=>card(c)).join('')||'<p>还没有这个卡包的收藏。</p>'}</div>`;
 }
 
+
+const hitLabels={rr:'RR',ar:'AR',sr:'SR',sar:'SAR',ur:'UR',mur:'MUR',fur:'FUR',rgb:'RGB',gold:'金边复刻',masterball:'大师球闪'};
+function openingHitGroup(c){return c.slotGroup||findCardArt(c.cardKey)?.rarity}
+function buyPacks(index,count=1){
+ if(!s||opening.length||s.openingResult||![1,5,10].includes(count))return;
+ const p=packs[index];if(!p)return;
+ const cost=p.price*count;
+ if(s.balance<cost){notice='资金不足，'+count+'包需要 '+money(cost)+'。';render();return}
+ const previousBox=s.sv151Box?JSON.parse(JSON.stringify(s.sv151Box)):null;
+ const drawn=[];
+ try{
+  for(let i=0;i<count;i++)drawn.push(...(p.set==='sv151'?open151():p.set==='m6'?openM6():p.anniversary?openAnniversary('日版'):p.lang==='简中'?openAnniversary():Array.from({length:p.count},(_,j)=>({...makeCard(j===p.count-1&&Math.random()<.2),lang:p.lang}))));
+ }catch(error){if(previousBox)s.sv151Box=previousBox;else delete s.sv151Box;notice='本次拆包未完成，未扣费，请重试。';render();return}
+ s.balance-=cost;opening=drawn;
+ s.openingResult={name:p.name,count,cost,ids:drawn.map(c=>c.id)};
+ save();notice='全部卡牌已自动保存。';render();
+}
+function skipOpening(){
+ if(!s||!opening.length)return;
+ const owned=new Set(s.cards.map(c=>c.id));
+ for(const c of opening)if(!owned.has(c.id)){s.cards.push(c);owned.add(c.id)}
+ opening=[];save();render();
+}
+function renderOpeningResult(){
+ const result=s.openingResult,ids=new Set(result.ids);
+ const cards=s.cards.filter(c=>ids.has(c.id)),groups=new Map();
+ for(const c of cards){
+  const rarity=openingHitGroup(c);if(!hitLabels[rarity])continue;
+  const key=c.cardKey||c.lang+'-'+c.i+'-'+rarity;
+  if(!groups.has(key))groups.set(key,{card:c,rarity,count:0,total:0});
+  const group=groups.get(key);group.count++;group.total+=value(c);
+ }
+ app.innerHTML=`<main class="opening-results"><h1>本次拆卡结果</h1><p>${result.name} · ${result.count} 包 · 花费 ${money(result.cost)}</p><p>已收下 ${cards.length} 张卡，以下仅列出 RR 及以上，以及金边复刻、大师球闪。</p>${groups.size?`<ul class="hit-list">${[...groups.values()].map(g=>`<li><strong>${cardTitle(g.card)}</strong><span>${hitLabels[g.rarity]} · ×${g.count} · 合计估值 ${money(g.total)}</span></li>`).join('')}</ul>`:'<p>这次没有获得上述稀有卡，下次再试试手气！</p>'}<p class="muted">普通卡也已全部进入图鉴。估值按当前品相计算。</p><button id="close-opening-result" class="gold">返回卡包商店</button></main>`;
+ document.querySelector('#close-opening-result').onclick=()=>{delete s.openingResult;tab='卡包商店';save();render()};
+}
+
 function render(){
 document.body.classList.toggle('is-opening',!!s&&opening.length>0);
 if(s&&opening.length){
- app.innerHTML=`<main class="opening-screen" aria-label="滑动卡片逐张收藏，方向键也可操作"><div class="swipe-stack">${opening[1]?`<article class="swipe-under" aria-hidden="true">${revealCard(opening[1])}</article>`:''}<article class="swipe-top" tabindex="0" role="group" aria-label="${cardTitle(opening[0])}，剩余${opening.length}张，拖动或按方向键收藏">${revealCard(opening[0])}</article></div></main>`;
+ app.innerHTML=`<main class="opening-screen" aria-label="滑动卡片逐张收藏，方向键也可操作"><div class="swipe-stack">${opening[1]?`<article class="swipe-under" aria-hidden="true">${revealCard(opening[1])}</article>`:''}<article class="swipe-top" tabindex="0" role="group" aria-label="${cardTitle(opening[0])}，剩余${opening.length}张，拖动或按方向键收藏">${revealCard(opening[0])}</article></div><div class="opening-controls"><span>剩余 ${opening.length} 张</span><button id="skip-opening">跳过翻卡，查看结果</button></div></main>`;
+ document.querySelector("#skip-opening").onclick=skipOpening;
  mountSwipe();
  document.querySelector('.swipe-top').focus({preventScroll:true});
  return;
 }
+if(s?.openingResult){renderOpeningResult();return}
 if(!s){app.innerHTML=`<main class="start"><div class="eyebrow">POCKET MUSEUM / 私人收藏室 · v0.5.3 151三卡包版</div><h1>每一包，<br>都是新的期待。</h1><p>收集喜欢的伙伴，把闪耀的瞬间留在藏馆。<br>你的拆卡日记，从这里开始。</p><div class="pack"><b>⚡</b><strong>口袋藏馆</strong></div><button class="gold" id="new">开启新存档</button> <button id="continue" ${gameStorage.getItem(KEY)?'':'disabled'}>继续收藏</button><p>${notice}</p></main>`;document.querySelector('#new').onclick=()=>start(true);document.querySelector('#continue').onclick=()=>start(false);return}
 const owned=s.cards.filter(c=>['raw','graded'].includes(c.state));app.innerHTML=`<header><div><strong>◈ 口袋藏馆</strong><br><small>POCKET MUSEUM · v0.5.3 151三卡包版</small></div><div><span class="muted">收藏资金 </span><b class="price">${money(s.balance)}</b> <button id="exit">存档退出</button></div></header><main><section class="hero"><div class="eyebrow">YOUR LITTLE COLLECTING RITUAL</div><h1>今天，会遇见谁？</h1><p>打开一包惊喜，收藏一份心动。</p><div class="row"><span>◷ 每日收入 ¥1,000 · 北京时间零点结算</span><span>藏馆已收录 ${owned.length} 张卡片</span></div></section><div class="notice">每日收入 ¥1,000 · 卡价为静态估值（美元×7.20），随品相与评级调整。<br>30周年：6张/包；M6：5张/包；151：7张/包，20包一盒保底3AR＋1大师球＋1SR以上。<br>出率为游戏模拟，非官方承诺；部分151卡图缺失或为示意图。送评 ¥20，1天后返回，损毁风险25%。</div>${notice?`<p role="status">${notice}</p>`:''}<nav>${['卡包商店','我的图鉴','评级仓库','交易市场'].map(t=>`<button data-tab="${t}" class="${tab===t?'active':''}">${t}</button>`).join('')}</nav><section id="content"></section></main><footer>本地自动存档 · 建议定期导出备份 · 离线天数会结算收入与裸卡磨损<br><button id="export">导出存档</button></footer>`;
-const area=document.querySelector('#content');if(tab==='卡包商店'){area.innerHTML=`<div class="row"><h2>挑一包，试试手气</h2><div class="language-switch" role="group" aria-label="卡包语言版本">${['简中','日版','美版'].map(lang=>`<button type="button" data-language="${lang}" aria-pressed="${packLanguage===lang}" class="${packLanguage===lang?'selected':''}">${lang}</button>`).join('')}</div><span class="muted">老卡包每日 20% 概率上架</span></div><div class="grid pack-grid">${packs.map((p,i)=>p.lang!==packLanguage||(p.old&&!s.old)?'':`<article class="panel pack-tile"><span class="tag">${p.lang} / ${p.count} CARDS</span>${p.set==='sv151'?`<div class="pack-cover"><img src="${sv151Meta.cover}" alt="日版151补充包包装" draggable="false"></div>`:p.set==='m6'?'<div class="pack-cover"><img src="assets/m6-jp/pack.jpg" alt="M6 Storm Emeralda 日版补充包包装" draggable="false"></div>':p.anniversary?'<div class="pack-cover"><img src="assets/30th-jp/pack.jpg" alt="日版30周年庆典补充包包装" draggable="false"></div>':p.lang==='简中'?'<div class="pack-cover"><img src="assets/30th/pack.png" alt="简中30周年庆典补充包包装" draggable="false"></div>':`<div class="pack ${p.color}"><b>${p.icon}</b><strong>${p.name}</strong></div>`}<h3>${p.name}</h3><p class="muted">${p.set==='sv151'?`7张/包 · 20包/盒<br>每盒3AR＋1大师球＋1SR以上<br>${sv151Progress()}`:p.set==='m6'?'113张卡 · 每包5张<br>前4张普卡 · 末位R以上<br>美元报价×7.20 · 独立模拟出率':p.anniversary?'日版全编号卡图 · 6张全闪<br>沿用玩家规则 · 无盒箱保底<br>包价为游戏设定 · 卡价按美元网页报价折算':p.lang==='简中'?'6张全闪 · 末位银边/金边互斥<br>玩家统计近似概率 · 无盒箱保底<br>游戏售价 ¥25 · 官方建议零售 ¥18':'最后一张 20% 概率为闪卡（模拟）'}</p><div class="row"><span class="price">${money(p.price)}</span><button class="gold" data-pack="${i}">拆一包 ↗</button></div></article>`).join('')}</div>`}else if(tab==='交易市场'){area.innerHTML=`<h2>卡店老板的今日收藏</h2><div class="grid">${s.shop.map(c=>card(c,true)).join('')}</div><h2>我的市场挂单</h2><div class="grid">${s.cards.filter(c=>c.state==='listed').map(c=>card(c)).join('')||'<p>暂无挂单。挂单按锁定价格在 1–7 天后模拟成交。</p>'}</div>`}else if(tab==='我的图鉴'){renderCollection(area)}else{
+const area=document.querySelector('#content');if(tab==='卡包商店'){area.innerHTML=`<div class="row"><h2>挑一包，试试手气</h2><div class="language-switch" role="group" aria-label="卡包语言版本">${['简中','日版','美版'].map(lang=>`<button type="button" data-language="${lang}" aria-pressed="${packLanguage===lang}" class="${packLanguage===lang?'selected':''}">${lang}</button>`).join('')}</div><span class="muted">老卡包每日 20% 概率上架</span></div><div class="grid pack-grid">${packs.map((p,i)=>p.lang!==packLanguage||(p.old&&!s.old)?'':`<article class="panel pack-tile"><span class="tag">${p.lang} / ${p.count} CARDS</span>${p.set==='sv151'?`<div class="pack-cover"><img src="${sv151Meta.cover}" alt="日版151补充包包装" draggable="false"></div>`:p.set==='m6'?'<div class="pack-cover"><img src="assets/m6-jp/pack.jpg" alt="M6 Storm Emeralda 日版补充包包装" draggable="false"></div>':p.anniversary?'<div class="pack-cover"><img src="assets/30th-jp/pack.jpg" alt="日版30周年庆典补充包包装" draggable="false"></div>':p.lang==='简中'?'<div class="pack-cover"><img src="assets/30th/pack.png" alt="简中30周年庆典补充包包装" draggable="false"></div>':`<div class="pack ${p.color}"><b>${p.icon}</b><strong>${p.name}</strong></div>`}<h3>${p.name}</h3><p class="muted">${p.set==='sv151'?`7张/包 · 20包/盒<br>每盒3AR＋1大师球＋1SR以上<br>${sv151Progress()}`:p.set==='m6'?'113张卡 · 每包5张<br>前4张普卡 · 末位R以上<br>美元报价×7.20 · 独立模拟出率':p.anniversary?'日版全编号卡图 · 6张全闪<br>沿用玩家规则 · 无盒箱保底<br>包价为游戏设定 · 卡价按美元网页报价折算':p.lang==='简中'?'6张全闪 · 末位银边/金边互斥<br>玩家统计近似概率 · 无盒箱保底<br>游戏售价 ¥25 · 官方建议零售 ¥18':'最后一张 20% 概率为闪卡（模拟）'}</p><div class="row"><span class="price">${money(p.price)}</span></div><div class="batch-options">${[1,5,10].map(count=>`<button class="${count===1?'gold':''}" data-pack="${i}" data-count="${count}" aria-label="${p.name} ${count}包，${p.price*count}元">${count===1?'拆1包':'连拆'+count+'包'}<small>¥${p.price*count}</small></button>`).join('')}</div></article>`).join('')}</div>`}else if(tab==='交易市场'){area.innerHTML=`<h2>卡店老板的今日收藏</h2><div class="grid">${s.shop.map(c=>card(c,true)).join('')}</div><h2>我的市场挂单</h2><div class="grid">${s.cards.filter(c=>c.state==='listed').map(c=>card(c)).join('')||'<p>暂无挂单。挂单按锁定价格在 1–7 天后模拟成交。</p>'}</div>`}else if(tab==='我的图鉴'){renderCollection(area)}else{
  const cards=s.cards.filter(c=>['graded','grading'].includes(c.state));
  const lost=s.cards.filter(c=>c.state==='lost');
  area.innerHTML=`<h2>评级仓库 · ${cards.length} 张</h2><div class="grid">${cards.map(c=>card(c)).join('')||'<p>暂无送评卡牌。</p>'}</div><h2>损毁记录 · ${lost.length} 张</h2><p class="muted">以下卡牌已永久损毁，不计入当前收藏进度。</p><div class="grid">${lost.map(c=>card(c)).join('')||'<p>暂无损毁记录。</p>'}</div>`;
@@ -134,6 +172,6 @@ if(filterToggle){
 }
 document.querySelector('#exit').onclick=()=>{for(const c of opening)s.cards.push(c);opening=[];save();s=null;render()};document.querySelector('#export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(s)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='pocket-museum.json';a.click();URL.revokeObjectURL(url)};
 document.querySelectorAll('[data-language]').forEach(b=>b.onclick=()=>{packLanguage=b.dataset.language;render()});
-document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});document.querySelectorAll('[data-pack]').forEach(b=>b.onclick=()=>{const p=packs[+b.dataset.pack];if(s.balance<p.price){notice='资金不足，明天再来看看吧。';render();return}s.balance-=p.price;opening=p.set==='sv151'?open151():p.set==='m6'?openM6():p.anniversary?openAnniversary('日版'):p.lang==='简中'?openAnniversary():Array.from({length:p.count},(_,i)=>({...makeCard(i===p.count-1&&Math.random()<.2),lang:p.lang}));s.cards.push(...opening);save();s.cards.splice(-opening.length);notice='卡片已保存，刷新页面也不会丢失。';render()});
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});document.querySelectorAll('[data-pack]').forEach(b=>b.onclick=()=>buyPacks(+b.dataset.pack,Number(b.dataset.count)));
 for(const action of ['sell','grade','list','buy'])document.querySelectorAll(`[data-${action}]`).forEach(b=>b.onclick=()=>{const c=(action==='buy'?s.shop:s.cards).find(c=>c.id===b.dataset[action]);if(!c)return;if(action==='buy'){if(s.balance<value(c)){notice='资金不足';render();return}s.balance-=value(c);s.shop=s.shop.filter(x=>x.id!==c.id);s.cards.push(c)}if(action==='sell'){s.balance+=value(c)*.8;c.state='sold'}if(action==='grade'){showGradingDialog(c.id);return}if(action==='list'){showListingDialog(c.id);return}save();render()})}
 setInterval(()=>{if(s&&!opening.length&&!document.querySelector('#game-dialog')){refresh();render()}},60000);render();
