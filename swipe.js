@@ -53,5 +53,5 @@ function mountSwipe() {
   });
 }
 function revealCard(c) {
-  return `<div class="cardart ${c.cardKey?'has-art':''} ${c.rare?'rare':''}">${cardPicture(c)}</div>`;
+  return `<div class="cardart ${c.cardKey?'has-art':''} ${c.rare?'rare':''}">${cardPicture(c)}</div>${errorBadge(c)}`;
 }
